@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>SQL Practice · 20 temas con imágenes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        /* Estilos generales - separación conceptual de CSS */
+        body {
+            background: #f4f6f9;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            overflow-x: hidden;
+        }
+        .sidebar {
+            background: linear-gradient(180deg, #0a1a2a 0%, #0f2337 100%);
+            color: #eef4ff;
+            min-height: 100vh;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+        .sidebar .menu-scroll {
+            max-height: calc(100vh - 110px);
+            overflow-y: auto;
+            padding-bottom: 1.5rem;
+        }
+        .menu-scroll::-webkit-scrollbar { width: 5px; }
+        .menu-scroll::-webkit-scrollbar-track { background: #1e3a4d; border-radius: 10px; }
+        .menu-scroll::-webkit-scrollbar-thumb { background: #3a7ca5; border-radius: 10px; }
+
+        .sidebar .nav-link {
+            color: #cde1f0;
+            font-weight: 500;
+            padding: 0.7rem 1rem;
+            margin: 0.2rem 0.8rem;
+            border-radius: 12px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sidebar .nav-link i {
+            width: 28px;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+        .sidebar .nav-link:hover {
+            background-color: rgba(255,255,255,0.12);
+            color: white;
+            transform: translateX(5px);
+        }
+        .sidebar .nav-link.active {
+            background: #2c7da0;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        }
+        /* Items vacíos con estilo sutil */
+        .sidebar .nav-link.empty-item {
+            opacity: 0.7;
+            font-style: italic;
+        }
+        .sidebar .nav-link.empty-item:hover {
+            opacity: 1;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem 1rem 1rem 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 0.8rem;
+        }
+        .sidebar-header h4 {
+            font-weight: 700;
+            font-size: 1.4rem;
+            letter-spacing: -0.2px;
+        }
+
+        .main-content {
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .sql-card {
+            border: none;
+            border-radius: 28px;
+            background: white;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.03);
+            transition: transform 0.2s;
+        }
+        .badge-sql-topic {
+            background: #e9edf2;
+            color: #1e4663;
+            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+        }
+        .btn-outline-sql {
+            border: 1px solid #2c7da0;
+            color: #2c7da0;
+            border-radius: 40px;
+            padding: 6px 20px;
+            transition: 0.2s;
+        }
+        .btn-outline-sql:hover {
+            background: #2c7da0;
+            color: white;
+        }
+        pre {
+            background: #1e2a36;
+            padding: 15px;
+            border-radius: 18px;
+            color: #e2f0fa;
+            overflow-x: auto;
+            font-size: 0.9rem;
+        }
+        .topic-img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 16px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+        .img-placeholder {
+            background: #eef2f6;
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            color: #6c7a8a;
+            border: 2px dashed #cbd5e1;
+        }
+        footer {
+            font-size: 0.8rem;
+            border-top: 1px solid #dee2e6;
+        }
+        @media (max-width: 768px) {
+            .sidebar { min-height: auto; }
+            .sidebar .menu-scroll { max-height: 280px; }
+        }
+        /* animación suave */
+        .fade-in { animation: fadeIn 0.25s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid p-0 m-0">
+    <div class="row g-0">
+        <div class="col-12 col-md-3 col-lg-2 sidebar">
+            <div class="sidebar-header">
+                <h4><i class="fas fa-database me-2"></i>SQL Lab</h4>
+                <p class="small opacity-75">20 temas · con imágenes</p>
+            </div>
+            <div class="menu-scroll">
+                <nav class="nav nav-pills flex-column" id="sql-menu-nav" role="tablist">
+                    </nav>
+            </div>
+            <div class="d-none d-md-block p-3 text-center small text-white-50 mt-2">
+                <i class="fas fa-image me-1"></i> Cada tema incluye imagen
+            </div>
+        </div>
+
+        <div class="col-12 col-md-9 col-lg-10 main-content p-4 p-md-5">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+                <div>
+                    <h2 class="fw-semibold" id="main-title"><i class="fas fa-table me-2 text-primary"></i>Prácticas SQL</h2>
+                    <p class="text-muted" id="main-description">Selecciona un tema del menú. Cada ejercicio incluye descripción, código SQL y una imagen ilustrativa. Los items vacíos (16-20) están reservados para completar.</p>
+                </div>
+                <div class="d-md-none">
+                    <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMobileCollapse" aria-expanded="false">
+                        <i class="fas fa-bars"></i> Menú SQL
+                    </button>
+                </div>
+            </div>
+
+            <div class="collapse d-md-none mb-4" id="sidebarMobileCollapse">
+                <div class="card card-body bg-light p-2" id="mobile-menu-container"></div>
+            </div>
+
+            <div id="sqlContentArea">
+                <div class="sql-card p-4 fade-in">
+                    <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+                        <span class="badge-sql-topic"><i class="fas fa-graduation-cap"></i> 20 unidades</span>
+                        <span class="badge-sql-topic"><i class="fas fa-image"></i> Imágenes incluidas</span>
+                        <span class="badge-sql-topic"><i class="fas fa-code"></i> SQL práctico</span>
+                    </div>
+                    <h3>📘 Estructura con imágenes para cada tema</h3>
+                    <p>Menú lateral con <strong>15 temas específicos de SQL</strong> (conceptos, diseño, consultas, funciones) y <strong>5 ítems vacíos</strong> (del 16 al 20) para que los completes con tu propio contenido e imágenes.</p>
+                    <div class="row mt-3 g-3">
+                        <div class="col-md-6">
+                            <div class="bg-light p-3 rounded-3 border">
+                                <i class="fas fa-image text-primary"></i> <strong>Imagen personalizada:</strong> Cada tema tiene un campo <code>img</code> donde puedes poner una URL o ruta local.
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bg-light p-3 rounded-3 border">
+                                <i class="fas fa-edit text-success"></i> <strong>Edición en VSCode:</strong> Todos los datos están en el arreglo <code>menuItems</code> dentro del script. Fácil de modificar.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <button id="welcomeInfoBtn" class="btn btn-outline-sql mt-2"><i class="fas fa-info-circle"></i> Ver información</button>
+                    </div>
+                </div>
+            </div>
+            <footer class="mt-5 pt-3 text-center text-muted">
+                <i class="fas fa-database me-1"></i> SQL Practice · 20 items · Imagen por tema · Sin alertas en vacíos
+            </footer>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    // --------------------------------------------------------------
+    // DEFINICIÓN DE LOS 20 ÍTEMS con campo 'img' para cada uno
+    // Los primeros 15 tienen contenido, los 5 últimos (16-20) están vacíos (sin alerta)
+    // --------------------------------------------------------------
+    const menuItems = [
+        { 
+            id: 1, nombre: "1. Conceptos básicos", icono: "fas fa-database",
+            descripcion: "Es un sistema que organiza la información en tablas conectándose entre si por medio de claves",
+            codigo_sql: "-- Conceptos clave: Tablas, registros, campos\nCREATE DATABASE escuela;\nUSE escuela;\nCREATE TABLE alumnos (id INT, nombre VARCHAR(50));",
+            alertMsg: "📌 Conceptos básicos: Entiende qué es una tabla, registro y SGBD.",
+            img:"img/conseptos.jpg"
+        },
+        { 
+            id: 2, nombre: "2. Exposición", icono: "fas fa-chalkboard-teacher",
+            descripcion: " Exposición de la llave forenea. Infografía.",
+            codigo_sql: "-- Modelo entidad-relación\n-- Entidad 'Cliente' y 'Pedido'\n-- Cliente(id, nombre), Pedido(id, fecha, cliente_id)",
+            alertMsg: "🎤 Exposición: Comprende el modelo relacional y la presentación de datos.",
+            img: "img/exposición.jpg"
+        },
+        { 
+            id: 3, nombre: "3. Introducción a BD", icono: "fas fa-book-open",
+            descripcion: "Historia, motores de BD, instalación y primeros comandos.",
+            codigo_sql: "SHOW DATABASES;\nSELECT VERSION();\n-- Primeros pasos con MySQL, PostgreSQL",
+            alertMsg: "🗄️ Introducción a BD: Entornos, clientes SQL y primeros comandos.",
+            img: "img/introducción.jpg"
+        },
+        { 
+            id: 4, nombre: "4. Diseño", icono: "fas fa-pencil-ruler",
+            descripcion: "Diseño lógico de bases de datos, reglas de negocio y normalización inicial.",
+            codigo_sql: "-- Diseño: Tablas normalizadas\nCREATE TABLE productos (\n    id INT PRIMARY KEY,\n    nombre VARCHAR(100),\n    precio DECIMAL(10,2)\n);",
+            alertMsg: "📐 Diseño: Crea estructuras eficientes y evita redundancias.",
+            img: "img/diseño.jpg"
+        },
+        { 
+            id: 5, nombre: "5. Creación y restricciones", icono: "fas fa-plus-square",
+            descripcion: "CREATE TABLE, PRIMARY KEY, NOT NULL, UNIQUE, CHECK.",
+            codigo_sql: "CREATE TABLE usuarios (\n    id INT PRIMARY KEY,\n    email VARCHAR(100) UNIQUE NOT NULL,\n    edad INT CHECK (edad >= 18)\n);",
+            alertMsg: "🔒 Restricciones: Asegura la integridad de tus datos.",
+            img:"img/restricciones.jpg"
+
+        },
+        { 
+            id: 6, nombre: "6. Alter/Eliminar", icono: "fas fa-edit",
+            descripcion: "ALTER TABLE (ADD, DROP, MODIFY) y DROP TABLE.",
+            codigo_sql: "ALTER TABLE usuarios ADD COLUMN telefono VARCHAR(15);\nALTER TABLE usuarios DROP COLUMN edad;\nDROP TABLE temporal;",
+            alertMsg: "🛠️ ALTER y DROP: Modifica la estructura de tablas.",
+            img: "img/alter.png"
+        },
+        { 
+            id: 7, nombre: "7. Insertar", icono: "fas fa-arrow-down",
+            descripcion: "Inserción de registros con INSERT INTO, valores múltiples.",
+            codigo_sql: "INSERT INTO usuarios (id, email, telefono) VALUES \n(1, 'ana@mail.com', '5551234'),\n(2, 'luis@mail.com', '5555678');",
+            alertMsg: "📥 INSERT: Aprende a poblar tablas con datos de prueba.",
+            img: "img/insertar.jpg"
+        },
+        { 
+            id: 8, nombre: "8. Foreign key / Normalización", icono: "fas fa-link",
+            descripcion: "Claves foráneas, relaciones entre tablas y formas normales.",
+            codigo_sql: "CREATE TABLE pedidos (\n    id INT PRIMARY KEY,\n    usuario_id INT,\n    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)\n);",
+            alertMsg: "🔗 Foreign Key & Normalización: Evita redundancias.",
+            img: "img/exposición.jpg"
+        },
+        { 
+            id: 9, nombre: "9. Eliminar", icono: "fas fa-trash-alt",
+            descripcion: "DELETE con y sin condición, diferencias con TRUNCATE.",
+            codigo_sql: "DELETE FROM usuarios WHERE id = 2;\n-- Precaución: Sin WHERE borra todos los registros",
+            alertMsg: "⚠️ DELETE: Elimina filas específicas, usa condiciones.",
+            img: "img/eliminar.jpg"
+        },
+        { 
+            id: 10, nombre: "10. Actualizar", icono: "fas fa-sync-alt",
+            descripcion: "UPDATE para modificar datos existentes.",
+            codigo_sql: "UPDATE usuarios SET telefono = '5559999' WHERE email = 'ana@mail.com';",
+            alertMsg: "🔄 UPDATE: Modifica valores en registros existentes.",
+            img: "img/actualizar.png"
+        },
+        { 
+            id: 11, nombre: "11. SELECT from", icono: "fas fa-search",
+            descripcion: "Consultas básicas SELECT, selección de columnas, alias.",
+            codigo_sql: "SELECT nombre, email FROM usuarios;\nSELECT id, telefono AS contacto FROM usuarios;",
+            alertMsg: "🔍 SELECT: Recupera datos de una o más tablas.",
+            img: "img/select.jpg"
+        },
+        { 
+            id: 12, nombre: "12. Operadores", icono: "fas fa-filter",
+            descripcion: "Operadores relacionales, lógicos (AND, OR, NOT), BETWEEN, IN, LIKE.",
+            codigo_sql: "SELECT * FROM productos WHERE precio BETWEEN 10 AND 100 AND nombre LIKE '%Laptop%';",
+            alertMsg: "⚙️ Operadores: Filtra con WHERE usando condiciones complejas.",
+            img: "img/operadores.jpg"
+        },
+        { 
+            id: 13, nombre: "13. Funciones de texto", icono: "fas fa-font",
+            descripcion: "UPPER, LOWER, CONCAT, SUBSTRING, LENGTH, TRIM.",
+            codigo_sql: "SELECT CONCAT(nombre, ' ', apellido) AS completo, UPPER(ciudad) FROM clientes;",
+            alertMsg: "📝 Funciones texto: Manipula cadenas, convierte mayúsculas.",
+            img: "img/text.jpg"
+        },
+        { 
+            id: 14, nombre: "14. Funciones numéricas", icono: "fas fa-calculator",
+            descripcion: "ROUND, CEIL, FLOOR, ABS, MOD, RAND, SUM, AVG.",
+            codigo_sql: "SELECT ROUND(precio, 2) AS precio_redondeado, AVG(stock) FROM inventario;",
+            alertMsg: "🔢 Funciones numéricas: Operaciones matemáticas y agregados.",
+            img: "img/numeros.jpg"
+        },
+        { 
+            id: 15, nombre: "15. Funciones de fecha", icono: "fas fa-calendar-alt",
+            descripcion: "NOW(), CURDATE(), DATE_FORMAT, DATEDIFF, YEAR, MONTH.",
+            codigo_sql: "SELECT nombre, YEAR(fecha_nac) AS año_nacimiento, DATEDIFF(NOW(), fecha_registro) FROM usuarios;",
+            alertMsg: "📅 Funciones fecha: Maneja fechas, intervalos y formateo.",
+            img: "img/fecha.png"
+        },
+        // ----- ITEMS VACÍOS (16 al 20) - SIN ALERTA, solo estructura con imagen placeholder -----
+        { 
+            id: 16, nombre: "16.Order by", icono: "fas fa-box-open",
+            descripcion: "El ORDER BY es una cláusula en SQL que se usa para ordenar el resultado de una consulta de forma ascendente o descendente.",
+            codigo_sql: "SELECT nombre, edad FROM usuarios ORDER BY edad DESC;",
+            alertMsg: null,  // Sin alerta
+            img: "img/order.jpg"
+        },
+        { 
+            id: 17, nombre: "17. (Vacío) Próximamente", icono: "fas fa-clock",
+            descripcion: "Tema en desarrollo. Prepárate para nuevos desafíos SQL.",
+            codigo_sql: "-- Próximamente: subconsultas avanzadas o vistas",
+            alertMsg: null,
+            img: "https://via.placeholder.com/600x200/e0e0e0/666666?text=Vacío+17"
+        },
+        { 
+            id: 18, nombre: "18. (Vacío) Ejercicio extra", icono: "fas fa-plus-circle",
+            descripcion: "Espacio para ampliar con procedimientos almacenados o triggers.",
+            codigo_sql: "-- Aquí irá un nuevo tópico SQL",
+            alertMsg: null,
+            img: "https://via.placeholder.com/600x200/e0e0e0/666666?text=Vacío+18"
+        },
+        { 
+            id: 19, nombre: "19. (Vacío) Por definir", icono: "fas fa-question-circle",
+            descripcion: "Tema 19 pendiente de asignación.",
+            codigo_sql: "-- Pendiente de especificación",
+            alertMsg: null,
+            img: "https://via.placeholder.com/600x200/e0e0e0/666666?text=Vacío+19"
+        },
+        { 
+            id: 20, nombre: "20. (Vacío) Final", icono: "fas fa-cube",
+            descripcion: "Item de cierre para completar el menú de 20.",
+            codigo_sql: "-- Disponible para práctica adicional",
+            alertMsg: null,
+            img: "https://via.placeholder.com/600x200/e0e0e0/666666?text=Vacío+20"
+        }
+    ];
+
+    // ---------- FUNCIONES ----------
+    function renderMenu() {
+        const navContainer = document.getElementById('sql-menu-nav');
+        const mobileContainer = document.getElementById('mobile-menu-container');
+        if (!navContainer) return;
+        navContainer.innerHTML = '';
+        
+        menuItems.forEach(item => {
+            const navLink = document.createElement('a');
+            navLink.href = 'javascript:void(0);';
+            let additionalClass = (item.id >= 16) ? 'empty-item' : '';
+            navLink.className = `nav-link ${additionalClass}`;
+            navLink.setAttribute('data-id', item.id);
+            navLink.innerHTML = `<i class="${item.icono}"></i><span>${item.nombre}</span>`;
+            navLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('#sql-menu-nav .nav-link').forEach(link => link.classList.remove('active'));
+                navLink.classList.add('active');
+                cargarContenidoSQL(item);
+                // Cerrar menú móvil si está abierto
+                const collapseElem = document.getElementById('sidebarMobileCollapse');
+                if (window.innerWidth < 768 && collapseElem.classList.contains('show')) {
+                    const bsCollapse = bootstrap.Collapse.getInstance(collapseElem);
+                    if (bsCollapse) bsCollapse.hide();
+                }
+            });
+            navContainer.appendChild(navLink);
+        });
+        
+        // Menú móvil
+        if (mobileContainer) {
+            mobileContainer.innerHTML = '';
+            const mobileGroup = document.createElement('div');
+            mobileGroup.className = 'nav flex-column';
+            menuItems.forEach(item => {
+                const mobileLink = document.createElement('a');
+                mobileLink.href = 'javascript:void(0);';
+                mobileLink.className = `nav-link text-dark mb-1 ${item.id >= 16 ? 'text-secondary fst-italic' : ''}`;
+                mobileLink.innerHTML = `<i class="${item.icono} me-2"></i> ${item.nombre}`;
+                mobileLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    cargarContenidoSQL(item);
+                    document.querySelectorAll('#sql-menu-nav .nav-link').forEach(link => {
+                        if (link.getAttribute('data-id') == item.id) link.classList.add('active');
+                        else link.classList.remove('active');
+                    });
+                    const collapseDiv = document.getElementById('sidebarMobileCollapse');
+                    if (collapseDiv && collapseDiv.classList.contains('show')) {
+                        const bs = bootstrap.Collapse.getInstance(collapseDiv);
+                        if (bs) bs.hide();
+                    }
+                });
+                mobileGroup.appendChild(mobileLink);
+            });
+            mobileContainer.appendChild(mobileGroup);
+        }
+    }
+
+    // Escapar HTML para código
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // Cargar contenido en el área principal
+    function cargarContenidoSQL(item) {
+        const contentArea = document.getElementById('sqlContentArea');
+        if (!contentArea) return;
+        
+        // Actualizar título y descripción global
+        document.getElementById('main-title').innerHTML = `<i class="fas ${item.icono} me-2 text-primary"></i>${item.nombre}`;
+        if (item.id >= 16) {
+            document.getElementById('main-description').innerHTML = `⚠️ Tema vacío (${item.nombre}) — Sin alertas. Este ítem está reservado para que desarrolles tu propio contenido. La imagen y estructura están listas.`;
+        } else {
+            document.getElementById('main-description').innerHTML = `${item.descripcion} — Ejercicio práctico con bloque SQL, imagen ilustrativa y alerta SweetAlert (opcional).`;
+        }
+        
+        const isEmpty = (item.id >= 16);
+        const hasAlert = (item.alertMsg !== null && item.alertMsg !== undefined);
+        
+        // Construir HTML de la tarjeta con imagen
+        let contentHtml = `
+            <div class="sql-card p-4 fade-in">
+                <div class="d-flex justify-content-between flex-wrap align-items-center">
+                    <div>
+                        <span class="badge-sql-topic"><i class="fas ${item.icono} me-1"></i> Tema #${item.id}</span>
+                        <h3 class="mt-2">📌 ${item.nombre}</h3>
+                    </div>
+                    ${(!isEmpty && hasAlert) ? `<button class="btn btn-outline-sql" id="alertSpecificBtn"><i class="fas fa-bell"></i> Ver alerta</button>` : ''}
+                </div>
+                
+                <div class="my-3">
+                    <img src="${item.img}" alt="Imagen ilustrativa para ${item.nombre}" class="topic-img" style="max-height: 220px; width: 100%; object-fit: cover;">
+                </div>
+                
+                <p class="mt-2 fs-6">${item.descripcion}</p>
+                
+                <div class="mt-3">
+                    <strong><i class="fas fa-code"></i> Código SQL de ejemplo:</strong>
+                    <pre class="mt-2"><code>${escapeHtml(item.codigo_sql)}</code></pre>
+                </div>
+                
+                ${isEmpty ? `
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-pencil-alt"></i> <strong>Ítem vacío:</strong> Este espacio está reservado para que agregues tu propio contenido SQL. Edita el arreglo <code>menuItems</code> en la posición ${item.id}.
+                    </div>
+                ` : `
+                    <div class="alert alert-secondary mt-3 d-flex gap-2 align-items-center">
+                        <i class="fas fa-lightbulb text-warning"></i>
+                        <span><strong>Práctica:</strong> Revisa el código y modifícalo según necesites. La imagen es ilustrativa.</span>
+                    </div>
+                `}
+            </div>
+        `;
+        contentArea.innerHTML = contentHtml;
+        
+        // Asignar evento al botón de alerta SOLO si tiene alertMsg y no está vacío
+        const alertBtn = document.getElementById('alertSpecificBtn');
+        if (alertBtn && !isEmpty && hasAlert) {
+            const newBtn = alertBtn.cloneNode(true);
+            alertBtn.parentNode.replaceChild(newBtn, alertBtn);
+            newBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                Swal.fire({
+                    title: `✨ ${item.nombre}`,
+                    html: `<strong>Descripción:</strong> ${item.descripcion}<br><br>
+                           <strong>Código de ejemplo:</strong><br><pre style="background:#f1f3f5; padding:10px; border-radius:14px; text-align:left;"><code>${escapeHtml(item.codigo_sql)}</code></pre>
+                           <span class="badge bg-primary mt-2">${item.alertMsg}</span>`,
+                    icon: 'success',
+                    confirmButtonText: '¡A practicar!',
+                    confirmButtonColor: '#2c7da0',
+                    showCloseButton: true
+                });
+            });
+        }
+    }
+
+    // Inicializar al cargar la página
+    document.addEventListener('DOMContentLoaded', () => {
+        renderMenu();
+        // Activar primer elemento (Conceptos básicos)
+        const firstNav = document.querySelector('#sql-menu-nav .nav-link');
+        if (firstNav && menuItems.length) {
+            firstNav.classList.add('active');
+            cargarContenidoSQL(menuItems[0]);
+        } else {
+            if (menuItems.length) cargarContenidoSQL(menuItems[0]);
+        }
+        
+        // Botón de bienvenida
+        const welcomeBtn = document.getElementById('welcomeInfoBtn');
+        if (welcomeBtn) {
+            welcomeBtn.addEventListener('click', () => {
+                Swal.fire({
+                    title: '📘 SQL Practice Hub',
+                    html: 'Menú con <strong>20 temas</strong> (15 con contenido + 5 vacíos).<br>Cada tema incluye una imagen ilustrativa.<br>Los items vacíos (16-20) <strong>no tienen alerta</strong> y están listos para que los personalices en VSCode.<br><br><i class="fas fa-image"></i> Edita el campo <code>img</code> y <code>codigo_sql</code> en el array <code>menuItems</code>.',
+                    icon: 'info',
+                    confirmButtonText: '¡Entendido!',
+                    confirmButtonColor: '#2c7da0'
+                });
+            });
+        }
+    });
+</script>   
+</body>
+</html>
